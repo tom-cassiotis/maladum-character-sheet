@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maladum Character Skill Sheet</title>
+  <style>
+    /* ── Base ────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --surface:   #ffffff;
+      --border:    #d1c4b0;
+      --accent:    #7c4f1e;
+      --accent-lt: #a8693a;
+      --accent-dk: #4e2f0e;
+      --text:      #2c2016;
+      --text-dim:  #7a6654;
+      --cat-badge: #e8e0d4;
+      --selected:  #fdf3e7;
+      --sel-border:#a8693a;
+      --print-bg:  #fff;
+      --skill-ident-bg: #faf7f3;
+      --skill-print-icon-size: 75px;
+      --skill-left-icon-size: 60px;
+    }
+
+    body {
+      font-family: "Georgia", serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* prevent icon images showing as white-on-white — give them a subtle tinted bg */
+    .skill-icon, .tbl-icon-large { background: var(--skill-ident-bg); }
+
+    /* ── Header ──────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--accent-dk) 0%, var(--accent) 50%, var(--accent-dk) 100%);
+      border-bottom: 3px solid var(--accent-lt);
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #fff;
+      letter-spacing: 0.06em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    header h1 span { color: rgba(255,255,255,0.65); font-size: 1rem; font-weight: normal; margin-left: 10px; }
+
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 4px;
+      padding: 8px 18px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: var(--accent-dk);
+      font-weight: bold;
+    }
+    .btn-primary:hover { background: #fdf6ee; }
+
+    .btn-secondary {
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+
+    /* ── Layout ──────────────────────────────────────────────── */
+    .app {
+      display: flex;
+      flex: 1;
+      gap: 0;
+      overflow: hidden;
+      height: calc(100vh - 70px);
+    }
+
+    /* ── Skill Selector Panel ────────────────────────────────── */
+    .selector-panel {
+      width: 320px;
+      min-width: 260px;
+      background: var(--surface);
+      border-right: 2px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+    }
+
+    .panel-header {
+      padding: 12px 16px;
+      background: var(--cat-badge);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-header h2 { font-size: 0.95rem; color: var(--accent); letter-spacing: 0.05em; font-weight: bold; }
+
+    .count-badge {
+      background: var(--accent);
+      color: #fff;
+      border-radius: 99px;
+      padding: 2px 9px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .selector-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    .selector-scroll::-webkit-scrollbar { width: 6px; }
+    .selector-scroll::-webkit-scrollbar-track { background: var(--surface); }
+    .selector-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Category group */
+    .category-group { margin-bottom: 2px; }
+
+    .category-header {
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: bold;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-dk);
+      background: var(--cat-badge);
+      border-left: 3px solid var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .category-header:hover { background: #e0d6c8; }
+
+    .category-header .chevron { transition: transform 0.2s; font-style: normal; }
+    .category-group.collapsed .chevron { transform: rotate(-90deg); }
+    .category-group.collapsed .skill-list { display: none; }
+
+    .skill-list { padding: 2px 0; }
+
+    /* Skill row */
+    .skill-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 14px 7px 18px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+      user-select: none;
+    }
+
+    .skill-row:hover { background: #f5f0e8; }
+
+    .skill-row.selected {
+      background: var(--selected);
+      border-left-color: var(--accent);
+    }
+
+    .skill-icon {
+      width: var(--skill-left-icon-size);
+      height: var(--skill-left-icon-size);
+      object-fit: contain;
+      flex-shrink: 0;
+      border-radius: 4px;
+      background: transparent;
+    }
+
+    .skill-icon-placeholder {
+      width: var(--skill-left-icon-size);
+      height: var(--skill-left-icon-size);
+      flex-shrink: 0;
+      border-radius: 4px;
+      background: #f0ebe3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      border: 1px dashed var(--border);
+    }
+
+    .skill-name {
+      font-size: 0.9rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .skill-row.selected .skill-name { color: var(--accent); font-weight: bold; }
+
+
+
+    /* ── Preview Panel ───────────────────────────────────────── */
+    .preview-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-header {
+      padding: 12px 20px;
+      background: var(--cat-badge);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preview-header h2 { font-size: 0.95rem; color: var(--accent-dk); letter-spacing: 0.05em; font-weight: bold; }
+
+    /* Per-skill level buttons (in selector panel) */
+    .skill-name-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    .skill-level-btns {
+      display: flex;
+      gap: 4px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+
+    .skill-lvl-btn {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 5px 0;
+      width: 42px;
+      text-align: center;
+      font-family: inherit;
+      font-size: 0.72rem;
+      background: #fff;
+      color: var(--text-dim);
+      opacity: 0.5;
+      transition: background 0.12s, color 0.12s, border-color 0.12s, opacity 0.12s;
+    }
+
+    .skill-lvl-btn:hover { border-color: var(--accent-lt); color: var(--accent); opacity: 1; }
+
+    .skill-row.selected .skill-lvl-btn { opacity: 1; }
+
+    .skill-lvl-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: bold;
+      opacity: 1;
+    }
+
+    .preview-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .preview-scroll::-webkit-scrollbar { width: 6px; }
+    .preview-scroll::-webkit-scrollbar-track { background: var(--bg); }
+    .preview-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; border: 2px solid var(--bg); }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 12px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .empty-state .icon { font-size: 3rem; opacity: 0.4; }
+    .empty-state p { font-size: 1rem; }
+    .empty-state small { font-size: 0.85rem; }
+
+    /* Skills table */
+    .skills-table-wrap { overflow-x: auto; }
+
+    .skills-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .skills-table thead tr {
+      background: var(--accent);
+      border-bottom: 2px solid var(--accent-dk);
+    }
+
+    .skills-table th {
+      padding: 9px 12px;
+      text-align: left;
+      color: #fff;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .skills-table th:first-child { width: 160px; }
+    .skills-table th:nth-child(2) { width: 72px; }
+
+    .category-row td {
+      background: var(--cat-badge);
+      color: var(--accent-dk);
+      font-size: 0.78rem;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+    }
+
+    /* Bottom border only on the last row of each skill group */
+    .skills-table tbody tr.skill-row-last {
+      border-bottom: 2px solid var(--border);
+    }
+
+    .skills-table tbody tr.skill-row-last:last-child { border-bottom: none; }
+
+    .skills-table td {
+      padding: 8px 12px;
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    /* The merged skill identity cell (rowspan=3) */
+    .skill-identity-cell {
+      vertical-align: top !important;
+      text-align: center;
+      background: var(--skill-ident-bg);
+      border-right: 1px solid var(--border);
+      padding: 14px 10px !important;
+    }
+
+    .skill-name-label {
+      display: block;
+      font-weight: bold;
+      color: var(--accent-dk);
+      font-size: 0.92rem;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .tbl-icon-large {
+      width: var(--skill-print-icon-size);
+      height: var(--skill-print-icon-size);
+      object-fit: contain;
+      border-radius: 6px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .tbl-icon-ph {
+      width: var(--skill-print-icon-size);
+      height: var(--skill-print-icon-size);
+      border-radius: 6px;
+      background: #f0ebe3;
+      border: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: var(--text-dim);
+      margin: 0 auto;
+    }
+
+    .level-cell {
+      vertical-align: middle !important;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .level-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: bold;
+      color: var(--accent);
+      background: rgba(124,79,30,0.08);
+      border: 1px solid rgba(124,79,30,0.25);
+      border-radius: 3px;
+      padding: 2px 7px;
+      white-space: nowrap;
+    }
+
+    .level-text { color: var(--text); font-size: 0.83rem; }
+
+    /* ── No-icon notice ──────────────────────────────────────── */
+    .notice-bar {
+      background: #fef9f0;
+      border: 1px solid #e8cfa0;
+      border-radius: 5px;
+      padding: 10px 16px;
+      margin-bottom: 18px;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .notice-bar strong { color: var(--accent); }
+
+    /* ── Print styles ────────────────────────────────────────── */
+    @media print {
+      body { background: var(--print-bg); color: #111; }
+      header, .selector-panel, .preview-header, .notice-bar, .btn { display: none !important; }
+
+      .app { height: auto; display: block; }
+      .preview-panel { display: block; }
+      .preview-scroll { overflow: visible; padding: 0; }
+
+      .skills-table { font-size: 8pt; }
+      .skills-table thead tr { background: #ddd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .skills-table th { color: #333 !important; }
+      .category-row td { background: #eee !important; color: #333 !important; border-left: 3px solid #888 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .skill-row-last { border-bottom: 1px solid #ccc !important; }
+      .skill-name-label { color: #333 !important; }
+      .skill-identity-cell { border-right: 1px solid #ddd !important; }
+      .level-cell { border-right: 1px solid #eee !important; }
+      .level-label { color: #555 !important; background: #f0f0f0 !important; border-color: #bbb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .level-text { color: #222 !important; }
+      .tbl-icon-ph { border-color: #ccc !important; }
+      .tbl-icon-large { width: var(--skill-print-icon-size) !important; height: var(--skill-print-icon-size) !important; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Maladum <span>— Character Skill Sheet</span></h1>
+  <div class="header-actions">
+    <button class="btn btn-secondary" id="btn-clear">Clear All</button>
+    <button class="btn btn-primary" id="btn-print" onclick="window.print()">&#128438; Print / Save PDF</button>
+  </div>
+</header>
+
+<div class="app">
+
+  <!-- ── Selector Panel ────────────────────────────────── -->
+  <aside class="selector-panel">
+    <div class="panel-header">
+      <h2>Select Skills</h2>
+      <span class="count-badge" id="sel-count">0</span>
+    </div>
+    <div class="selector-scroll" id="skill-list-container"></div>
+  </aside>
+
+  <!-- ── Preview Panel ─────────────────────────────────── -->
+  <section class="preview-panel">
+    <div class="preview-header">
+      <h2>Skill Reference Table</h2>
+    </div>
+    <div class="preview-scroll" id="preview-container">
+      <div class="empty-state" id="empty-state">
+        <div class="icon">&#9876;&#65039;</div>
+        <p>No skills selected yet</p>
+        <small>Choose skills from the panel on the left to build your character's reference sheet.</small>
+      </div>
+      <div id="table-container" style="display:none;"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const SKILLS_DATA = [
+  {"Category":"Agility","Skill":"Acrobatics","Level 1 Action":"Make a Move action with Scramble X. Passive: You may Stand Up as an effortless action.","Level 2 Action":"Reaction: Use when targeted with an attack. Roll three combat dice. Each hit scored negates one hit from the enemy's attack. If no hits remain, all other effects of the attack are ignored. Passive: You may treat Rough Ground values as one lower.","Level 3 Action":"You burst out of combat. All enemies engaged with your character may be pushed up to two squares away in a direction of your choice... No attacks of opportunity are made, but each enemy pushed back suffers an attack with 2 dice. Then, you may make a Move action."},
+  {"Category":"Agility","Skill":"Combat Arts","Level 1 Action":"You sweep your enemy's feet from under them. An enemy in contact is knocked prone. Passive: This character's attacks gain Quickstrike. If using a weapon that also has Quickstrike, you may Dash AND Attack.","Level 2 Action":"Reaction: Use when an enemy engages you, before they attack. Their attack has no effect. Swap positions with the enemy, and then make a Move action with no attacks of opportunity or a Knock Back action with +1 die.","Level 3 Action":"Jump from a higher level, increasing your safe distance by 3. All characters of the same size or smaller adjacent to your landing position are knocked prone. Then make a Melee Attack with additional dice equal to the distance of the Jump."},
+  {"Category":"Agility","Skill":"Fleet of Foot","Level 1 Action":"Make a Move action.","Level 2 Action":"Passive: Gain Fast 1.","Level 3 Action":"Make a Move action. This and all your other Move actions in this turn ignore attacks of opportunity. Make an attack with one die against each enemy contacted during your Moves. Any hits will also knock them prone."},
+  {"Category":"Agility","Skill":"Reflexes","Level 1 Action":"Reaction: Use when an enemy engages you. Make a Move action, ignoring attacks of opportunity. Passive: Ignore one hit scored against you during any attack of opportunity.","Level 2 Action":"Reaction: Use when an enemy engages you. In any order, make a Move action, ignoring attacks of opportunity, and an Attack action. Passive: This character may use Parry against ranged attacks.","Level 3 Action":"Reaction: Use when an enemy engages you. The attacker is Stunned. In any order, make two Move actions, ignoring attacks of opportunity, and an Attack action. Passive: You may use an effortless action to ignore an attack of opportunity."},
+  {"Category":"Cunning","Skill":"Distraction","Level 1 Action":"A character in medium range and LoS becomes Fatigued.","Level 2 Action":"Make a Ranged Attack action or Throw an item. The target or another enemy within short range of the target suffers two Fatigued counters in addition to damage caused, if any. Then make a Move action.","Level 3 Action":"You may make a Move action with a character in medium range and LoS (cannot cause direct harm), and they suffer two Fatigued counters. You may make a Move and an Attack action yourself, in any order."},
+  {"Category":"Cunning","Skill":"Light Fingers","Level 1 Action":"Reaction: Use after suffering a melee attack in which you took no damage. Take any item from the attacker's inventory other than the one they attacked with. If you do not have space for it, drop it or another item you are holding.","Level 2 Action":"Move into contact with another character and make a Pickpocket action. Pickpocket allows rolling to take items, scatter items, or knock targets prone. Then make another Move action with no attacks of opportunity.","Level 3 Action":"Passive: You have access to the Pickpocket action as standard."},
+  {"Category":"Cunning","Skill":"Persuasion","Level 1 Action":"Use before making a Persuade roll. Add two automatic hits to the roll.","Level 2 Action":"Make a Persuade action against an Adventurer from another party to try to dissuade them from their mission. They suffer one Fatigued counter per unblocked hit. Passive: Add one extra die to your Persuade rolls.","Level 3 Action":"Make a Persuade action against any character, adding three automatic hits. The normal options apply, except that Adventurers from other parties will not join you."},
+  {"Category":"Cunning","Skill":"Tricks of the Trade","Level 1 Action":"You may lock or unlock a door or terrain piece in contact, OR you may use when Searching, after drawing tokens, to ignore any Trap token(s) drawn with no effect.","Level 2 Action":"Reaction: Use when a trap card or token is drawn targeting this character or a friendly character within short range and LoS. This character spots and disables the trap's trigger. Discard the card/token. Passive: Make a General Search as an effortless action.","Level 3 Action":"Use when Searching (terrain or General) to draw one additional token from the pouch and one random uncommon item. Do not resolve any traps drawn. Passive: Your attacks gain Piercing."},
+  {"Category":"Endurance","Skill":"Impervious","Level 1 Action":"Reaction: Use whenever you would suffer a status counter of any type. Discard the counter with no effect.","Level 2 Action":"Gain +2 Armour until the end of the round.","Level 3 Action":"Restore 1 Health. This may take you above your starting level. You may discard any status counters. In addition, you ignore all damage, resist all spells without spending pegs, and discard all status counters with no effect until the end of the round."},
+  {"Category":"Endurance","Skill":"Onslaught","Level 1 Action":"Reaction: Use after scoring one or more hits on an enemy in melee. Make another Melee Attack action.","Level 2 Action":"Reaction: Use after scoring one or more hits on an enemy with any attack. Move if you wish, and then make another Melee Attack action.","Level 3 Action":"Use during a Move action. You may ignore attacks of opportunity during this Move, and you may make a melee attack against each enemy you engaged with while moving."},
+  {"Category":"Endurance","Skill":"Quick Recovery","Level 1 Action":"Restore 1 Health.","Level 2 Action":"Use before activating to remove any Stunned, Poisoned or Wounded counters.","Level 3 Action":"Reaction: Use after being defeated. You are no longer defeated — restore 1 Health and Stand Up. Passive: At the start of your turn you may remove one Fatigued counter."},
+  {"Category":"Endurance","Skill":"Steady","Level 1 Action":"You cannot be Stunned, Knocked Back or laid prone until the end of the round.","Level 2 Action":"You cannot Move this turn, but you gain one extra die on all attacks and Knock Backs until the end of the round. Passive: You may ignore the Cumbersome rule in any turn in which you do not Move.","Level 3 Action":"Until the end of the round: You cannot become Fatigued, Stunned, Knocked Back or laid prone. Enemies cannot move out of contact unless you allow them to. After melee attacks against you, you may make a free Knock Back. You may Dash to engage enemies that move within 2 squares."},
+  {"Category":"Magic","Skill":"Forbidden Arts","Level 1 Action":"Use Purification 1 - replace your rightmost black Health peg with a green one.","Level 2 Action":"Cast any spell at any level, whether you have access to it or not, ignoring rank and peg limits. Spend actions as normal... After resolving, become Corrupted for each level higher than your rank. Passive: All spells that roll for an attack gain Vicious.","Level 3 Action":"You draw on the powers of an otherworldly being to perform acts beyond your physical limitations. Resolve the effects of any Skill at any level. Then become Corrupted. Can only be used during a quest."},
+  {"Category":"Magic","Skill":"Fortified Mind","Level 1 Action":"Use before casting a spell to cast it while engaged.","Level 2 Action":"Reaction: Use when a friendly character in short range suffers an attack. Use this character's magical armour to negate hits...","Level 3 Action":"Until the end of the round, all spells targeting friendly characters in short range are automatically resisted without spending pegs. All attacks against friendly characters in short range can be negated using this character's magical armour... Passive: Do not become Fatigued on Mental Overload for spells below your rank."},
+  {"Category":"Magic","Skill":"Malacyte Mastery","Level 1 Action":"Cast any non-Forbidden level 1 spell, whether you have access to it or not, spending an action or effortless action as normal.","Level 2 Action":"Reaction: Use after rolling the Magic Die to roll it again and pick which of the two results to apply.","Level 3 Action":"Reaction: After rolling an Unstoppable result during your turn, immediately cast any Proximate or Vicarious spell at a casting value of 2 without spending pegs. Then take any action for free. Passive: Gain Regeneration 1 - restore 1 Magic peg in the Assessment Phase."},
+  {"Category":"Magic","Skill":"Power Manipulation","Level 1 Action":"Reaction: Use at any time. Cast any Proximate or Vicarious spell you have access to.","Level 2 Action":"Passive: You may spend any number of Skill pegs when casting a spell to increase its casting value by the number of pegs spent. This can exceed your rank.","Level 3 Action":"You force a huge burst of energy through one of your magical items. Choose a weapon you hold with the Channel icon... Make a ranged attack at short range using a number of dice equal to pegs spent +3. Mental Overload results ignored. Passive: When you use Channel, resolve as if one extra peg spent."},
+  {"Category":"Melee","Skill":"Brutal Assault","Level 1 Action":"Make a Melee action using only your Unarmed Combat with one extra combat die. If the target survives lay it prone.","Level 2 Action":"Choose a character you are engaged with that is no larger than you and throw them into any square within short range and LoS... They suffer an attack equal to your Unarmed Combat +1... Passive: You may ignore the Cumbersome rule for melee weapons.","Level 3 Action":"Make up to three Melee actions using only your Unarmed Combat +1. If the target survives lay it prone. Then make a Move action."},
+  {"Category":"Melee","Skill":"Disarm","Level 1 Action":"Reaction: Use after suffering a melee attack in which you took no damage. The weapon that the attacker used is removed from their dashboard and scattered.","Level 2 Action":"Reaction: Use after suffering a melee attack in which you took no damage. The weapon that the attacker used is removed from their dashboard and added to yours.","Level 3 Action":"Reaction: As level 2. In addition, you may make an immediate Melee Attack action with the stolen weapon, followed by a Move action with no attacks of opportunity allowed."},
+  {"Category":"Melee","Skill":"Frenzy","Level 1 Action":"Use before making a melee attack. Add two dice to the attack.","Level 2 Action":"Use before making a melee attack. Add three dice to the attack.","Level 3 Action":"Use before making a melee attack. Add four dice to the attack. After rolling the dice, you may split the hits scored between any number of enemies in range of your weapon... Passive: Gain First Strike."},
+  {"Category":"Melee","Skill":"Weapons Master","Level 1 Action":"Make a Melee Attack with a weapon. You may re-roll one die. Passive: You may use the Shield Block ability as an effortless action.","Level 2 Action":"Use after making a melee attack with a weapon. The target is Wounded and Stunned. Passive: You may make a Melee Attack as an effortless action.","Level 3 Action":"Use after rolling for a melee attack with a weapon. You may roll again for a different weapon in your inventory, combining hits and effects. Then make a Knock Back action with +1 die, or a Move action. Passive: When making melee attacks, results on the blue die are critical hits."},
+  {"Category":"Ranged","Skill":"Bullseye","Level 1 Action":"Make a Ranged Attack at short range. This attack does not roll any dice — it scores 1 automatic hit, ignoring cover.","Level 2 Action":"Make a Ranged Attack at up to medium range. This attack does not roll any dice — it scores 1 automatic hit, ignoring cover and physical armour. Passive: Ranged attacks ignore cover at short range.","Level 3 Action":"Make a Ranged Attack at up to medium range. This attack does not roll any dice — it scores 2 automatic hits, ignoring cover and physical armour. Passive: Ranged attacks ignore cover at medium range."},
+  {"Category":"Ranged","Skill":"Counter Shot","Level 1 Action":"Reaction: Use after being targeted with a ranged attack or spell, before the attack is resolved. Make a Ranged Attack or cast a spell against the attacker.","Level 2 Action":"Reaction: Use at any time after a target enemy has taken its first action in the current round. Make a Ranged Attack or cast a spell against the target.","Level 3 Action":"Reaction: Use at any time. Make a Ranged Attack or cast a spell against an enemy with one extra combat die (if applicable), and then make a Move action."},
+  {"Category":"Ranged","Skill":"Ranged Expert","Level 1 Action":"Use when making a melee attack to use a ranged weapon instead. Roll to hit as normal using the weapon's short-range statistic and add one die to the attack. Passive: You may ready a weapon with Preparation as an effortless action.","Level 2 Action":"Throw any melee weapon, rolling two additional dice, OR throw any other item as if it was a weapon, rolling two dice. Passive: You may make a Ranged Attack as an effortless action.","Level 3 Action":"Make a Ranged Attack with a Shot weapon. Ignore the Unreliable rule and add the Bludgeoning, Sharp and Piercing rules to the attack. Passive: When making ranged or thrown attacks, results on the blue die are critical hits."},
+  {"Category":"Ranged","Skill":"Trick Shot","Level 1 Action":"Make a Ranged Attack. You may re-roll one die.","Level 2 Action":"You shoot an item from an enemy's hand. Make a Ranged Attack. If at least one hit is scored, no damage is done, but an item of your choice is removed from their inventory and moved up to six squares away.","Level 3 Action":"Make a Ranged Attack with three extra combat dice. After rolling the dice, you can split the hits scored between any number of eligible targets within range of your weapon and within short range of each other."},
+  {"Category":"Stealth","Skill":"Ambush","Level 1 Action":"Reaction: Use when an enemy ends a move within 4 squares and you are in full or partial cover. Make a Ranged Attack action against that enemy. You may Dash before or after this action.","Level 2 Action":"Reaction: Use when an enemy ends a move within 4 squares and you are in full or partial cover. Make a Move action and then an Attack action against that enemy. You may Dash once before or after.","Level 3 Action":"Reaction: Use when an enemy ends a move within 4 squares and you are in full or partial cover. Make a Move action, an Attack action against any enemy, and then another Move action. You may Dash once before or after any."},
+  {"Category":"Stealth","Skill":"Camouflage","Level 1 Action":"While you are in contact with any wall you cannot be targeted for the rest of the round. Enemies can move through adjacent squares without stopping or attracting attacks of opportunity and cannot end a move in contact with you. You do not block LoS.","Level 2 Action":"Make a Move or Ranged Attack action. While you are in contact with any terrain you cannot be targeted for the rest of the round... You do not block LoS.","Level 3 Action":"While you are not in contact with an enemy you cannot be targeted for the rest of the round... Passive Reaction: At any time during a round in which you are camouflaged, you may make a Ranged Attack action and then become Fatigued."},
+  {"Category":"Stealth","Skill":"Duck for Cover","Level 1 Action":"Reaction: Use after being targeted with a ranged attack or spell if you are within 4 squares of cover. Move into cover.","Level 2 Action":"Reaction: Use after being targeted with a ranged attack or spell if you are within 4 squares of cover. Move into cover and ignore all effects of that attack.","Level 3 Action":"Reaction: Use at any time. Make a Move action into cover ignoring attacks of opportunity, and make an Attack action, in any order. You cannot be targeted for the rest of the round as long as you do not move from your position."},
+  {"Category":"Stealth","Skill":"Hard to Hit","Level 1 Action":"While in cover, you cannot be affected by ranged attacks until the end of the round, although you can be targeted as normal.","Level 2 Action":"While in cover or at more than short range, you cannot be affected by ranged attacks until the end of the round, although you can be targeted as normal.","Level 3 Action":"Make a Move action ignoring attacks of opportunity. You cannot be affected by any enemy ranged attacks until the end of the round, although you can be targeted as normal."},
+  {"Category":"Support","Skill":"Barter","Level 1 Action":"Market Phase: Purchase an item of any value; Draw an additional rare item from the supply; OR Sell one item for its buy value (max 10 x your rank).","Level 2 Action":"Market Phase: Deduct up to 2 from the buy prices or add 2 to the sale prices of up to three items. Passive: Deduct up to 2 from the cost of one item or Adventurer upkeep cost in each Market Phase.","Level 3 Action":"Market Phase: Increase the number of Guilders gained from any quest objectives (if applicable) by 50%, rounding up."},
+  {"Category":"Support","Skill":"Inspiring","Level 1 Action":"Remove a Terrified counter from a friendly character in short range.","Level 2 Action":"Reaction: Use after defeating an enemy. All other friendly characters in short range may remove a Terrified counter OR take one action. Passive: Any other friendly character that starts its turn in short range and LoS removes a Terrified counter before activating.","Level 3 Action":"All friendly characters in short range (including this one) remove all Terrified and Fatigued counters. Each may then make one action."},
+  {"Category":"Support","Skill":"Intimidating","Level 1 Action":"Reaction: Use when an enemy in LoS activates. You may choose the enemy's target for the round from any eligible characters it can see, even if it is already engaged and/or another target is closer.","Level 2 Action":"Reaction: Use when an enemy enters LoS or starts their turn within LoS. Their turn immediately ends and they are Stunned. Passive: As an effortless action, you may take an action with any friendly character in short range. They then become Fatigued.","Level 3 Action":"All enemies of this character's rank or lower within short range and LoS are Stunned and Terrified. Passive: You gain Terrifying."},
+  {"Category":"Support","Skill":"Training","Level 1 Action":"Use after taking an action. Another Adventurer in your party within short range and LoS immediately makes the same action for free, if able.","Level 2 Action":"Advancement Phase: Add one Experience to any other Adventurer in your party. (Only to Agility, Endurance, Melee, Ranged or Stealth Skills). Trainee's rank may be no higher than X.","Level 3 Action":"Advancement Phase: Add one Experience to any two Adventurers in your party. One can be at any rank; for the other the trainee's rank may be no higher than X."},
+  {"Category":"Survival","Skill":"Natural Remedies","Level 1 Action":"Use when Resting. You and any other friendly characters that Rest this round restore an additional Health peg and an additional Magic peg.","Level 2 Action":"You or a friendly character in contact removes a Wounded or Poisoned counter and restores one Health.","Level 3 Action":"You and all friendly characters in contact are Blessed, and may each take an additional action this round."},
+  {"Category":"Survival","Skill":"One with Nature","Level 1 Action":"Use during a General Search action to forage... Roll Magic Die to find Morsel, Herbs, Provisions, Fungus, Remedy, or Minerals tokens. Passive: When staying in Wilderness during Rest Phase, roll once on the table per character with this Skill.","Level 2 Action":"At the start of your turn, choose a non-Otherworldly Wandering Beast within medium range and LoS. You may use any of your actions this turn to control the Beast instead.","Level 3 Action":"Select a random non-Otherworldly Wandering Beast of rank 1-3. It enters play at an Entry Point of your choice and will be controlled by you in the Adventurer Phase for the rest of the game. Passive: Non-Otherworldly Wandering Beasts will never target you."},
+  {"Category":"Survival","Skill":"Ready for Anything","Level 1 Action":"Reaction: Use at any time. Take an action.","Level 2 Action":"Passive: Use at any time, once per round. Take an action and then become Fatigued.","Level 3 Action":"Reaction: Use at any time, including midway through an enemy's Move. You may take up to two actions and an effortless action."},
+  {"Category":"Survival","Skill":"Tracking","Level 1 Action":"Look at the top three cards of the Event Deck.","Level 2 Action":"Based on current Dread, roll for arrival of all NPCs due this round... You may then move NPCs at any one Entry Point to a different one... Passive: If Staging Point is swapped with random Entry Point, you may roll the Magic Die twice and pick your preferred result.","Level 3 Action":"Reaction: Use either before or after an enemy enters LoS/is placed on the gaming area. This character may take a free turn immediately. All friendly characters in short range may take one action. Passive: You may treat Rough Ground values as two lower."},
+  {"Category":"Townsfolk","Skill":"Bombast","Level 1 Action":"Rest Phase: After any Raucous Night result, gain X additional Renown. Passive: Whenever Renown would be spent, this character may spend their Skill pegs instead of the party's Renown.","Level 2 Action":"Reaction: Use whenever Renown is gained by your party. Gain one additional Renown.","Level 3 Action":"(No Level 3 Action listed for Bombast)"},
+  {"Category":"Townsfolk","Skill":"Entertainer","Level 1 Action":"Remove a Fatigue counter from another character in short range. Rest Phase: Add up to 2 to any Inn roll without spending Renown.","Level 2 Action":"Use when Resting. Bless each friendly character (including this one) in short range. You may increase Dread to Bless them additional times. Rest Phase: At end of Phase, Bless all characters in your party.","Level 3 Action":"This character inspires all around them... Place three Reminder counters on this character's board. While in place, all friendly characters in short range may use Magic pegs as if they were Skill pegs. Passive: This character may use Magic pegs as if they were Skill pegs."},
+  {"Category":"Townsfolk","Skill":"Herbalism","Level 1 Action":"Reaction: When an attack is made by a friendly character in short range, add Poison rule (or Vicious if already Poisoned). Passive: Apply Herbs/Fungus/Minerals as regular action. During a quest, spend two actions to Craft a potion token as if visiting Artisan's Guild at no cost.","Level 2 Action":"Market Phase: Craft an item as above at no cost.","Level 3 Action":"You brew a potion with whatever you have at hand. Draw three crafted potion tokens at random and choose one to keep at no cost... After potion is used, roll combat die for Health, Magic or Skill pegs."},
+  {"Category":"Townsfolk","Skill":"Loremaster","Level 1 Action":"Advancement Phase: Add one Experience to any other Adventurer in your party (Townsfolk, Cunning, Magic, Support, Survival Skills, or Spells). Use when Searching to draw X additional tokens. Take a Hidden Location or Rare item if drawn.","Level 2 Action":"Use before setting up a quest to add an additional random rare item to the token pouch. Passive — Market Phase: You may re-roll the die when resolving a Book.","Level 3 Action":"(No Level 3 Action listed for Loremaster)"},
+  {"Category":"Townsfolk","Skill":"Smithing","Level 1 Action":"During a quest, spend an action to Repair a broken item at no cost. During a quest, spend two actions to Craft a weapon or armour token at no cost. Spend an action to create a Barricade in an adjacent square.","Level 2 Action":"Market Phase: Repair an item as above at no cost. Market Phase: Craft an item as above at no cost.","Level 3 Action":"(No Level 3 Action listed for Smithing)"},
+  {"Category":"Townsfolk","Skill":"Tactical Gift","Level 1 Action":"Reaction: Teamwork! When this character or another friendly character within short range and LoS makes an attack, for each friendly character in contact with themselves or target, add one die or gain Vicious (max X).","Level 2 Action":"Reaction: We Trained for This! Use after Event Card drawn or before arrival of characters... This character and all others in short range may take one action for free (can become Fatigued for second action). Passive: During friendly turn, unactivated characters can become Fatigued to take action.","Level 3 Action":"Use when in a room containing no enemies. You may close any doors, flip Entry Points, reposition characters... Then, for each friendly character in the room, replace uppermost peg in Dread Tracker with a green one..."}
+];
+
+// Icon resolution: skill name -> filename (exclude extension)
+const ICON_MAP = {
+  "Acrobatics":        "acrobatics",
+  "Combat Arts":       "combat-arts",
+  "Fleet of Foot":     "fleet-of-foot",
+  "Reflexes":          "reflexes",
+  "Distraction":       "distraction",
+  "Light Fingers":     "light-fingers",
+  "Persuasion":        "persuasion",
+  "Tricks of the Trade": "tricks-of-the-trade",
+  "Impervious":        "impervious",
+  "Onslaught":         "onslaught",
+  "Quick Recovery":    "quick-recovery",
+  "Steady":            "steady",
+  "Forbidden Arts":    "forbidden-arts",
+  "Fortified Mind":    "fortified-mind",
+  "Malacyte Mastery":  "malacyte-mastery",
+  "Power Manipulation":"power-manipulation",
+  "Brutal Assault":    "brutal-assault",
+  "Disarm":            "disarm",
+  "Frenzy":            "frenzy",
+  "Weapons Master":    "weapons-master",
+  "Bullseye":          "bullseye",
+  "Counter Shot":      "counter-shot",
+  "Ranged Expert":     "ranged-expert",
+  "Trick Shot":        "trick-shot",
+  "Ambush":            "ambush",
+  "Camouflage":        "camouflage",
+  "Duck for Cover":    "duck-for-cover",
+  "Hard to Hit":       "hard-to-hit",
+  "Barter":            "barter",
+  "Inspiring":         "inspiring",
+  "Intimidating":      "intimidating",
+  "Training":          "training",
+  "Natural Remedies":  "natural-remedies",
+  "One with Nature":   "one-with-nature",
+  "Ready for Anything":"ready-for-anything",
+  "Tracking":          "tracking",
+  "Bombast":           "bombast",
+  "Entertainer":       "entertainer",
+  "Herbalism":         "herbalism",
+  "Loremaster":        "loremaster",
+  "Smithing":          "smithing",
+  "Tactical Gift":     "tactical-gift",
+};
+
+const NO_ICON_SKILLS = [];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+const selected = new Set();
+const skillLevels = new Map(); // skill name -> levels to show: 1, 2, or 3
+
+// ── Group data by category ────────────────────────────────────────────────────
+function groupByCategory(data) {
+  const map = new Map();
+  for (const skill of data) {
+    if (!map.has(skill.Category)) map.set(skill.Category, []);
+    map.get(skill.Category).push(skill);
+  }
+  return map;
+}
+
+// ── Icon helper ───────────────────────────────────────────────────────────────
+function iconEl(skillName, size = 36) {
+  const key = ICON_MAP[skillName];
+  if (key) {
+    const img = document.createElement("img");
+    img.src = `assets/skills/${key}.png`;
+    img.alt = skillName;
+    img.className = size === 36 ? "skill-icon" : "tbl-icon";
+    img.width = size;
+    img.height = size;
+    return img;
+  }
+  const ph = document.createElement("div");
+  ph.className = size === 36 ? "skill-icon-placeholder" : "tbl-icon-ph";
+  ph.title = "No icon available";
+  ph.textContent = "?";
+  return ph;
+}
+
+// ── Build selector ────────────────────────────────────────────────────────────
+function buildSelector() {
+  const container = document.getElementById("skill-list-container");
+  const grouped = groupByCategory(SKILLS_DATA);
+
+  for (const [category, skills] of grouped) {
+    const group = document.createElement("div");
+    group.className = "category-group";
+    group.dataset.category = category;
+
+    const catHeader = document.createElement("div");
+    catHeader.className = "category-header";
+    catHeader.innerHTML = `<span>${category}</span><em class="chevron">&#9660;</em>`;
+    catHeader.addEventListener("click", () => {
+      group.classList.toggle("collapsed");
+    });
+
+    const skillList = document.createElement("div");
+    skillList.className = "skill-list";
+
+    for (const skill of skills) {
+      const row = document.createElement("div");
+      row.className = "skill-row";
+      row.dataset.skill = skill.Skill;
+
+      const icon = iconEl(skill.Skill, 36);
+
+      const nameWrap = document.createElement("div");
+      nameWrap.className = "skill-name-wrap";
+
+      const name = document.createElement("span");
+      name.className = "skill-name";
+      name.textContent = skill.Skill;
+
+      const lvlBtns = document.createElement("div");
+      lvlBtns.className = "skill-level-btns";
+      const lvlLabels = ["1", "1\u20132", "1\u20133"];
+      [1, 2, 3].forEach(n => {
+        const btn = document.createElement("button");
+        btn.className = "skill-lvl-btn";
+        btn.textContent = lvlLabels[n - 1];
+        btn.dataset.levels = n;
+        btn.addEventListener("click", e => {
+          e.stopPropagation();
+          if (!selected.has(skill.Skill)) {
+            selected.add(skill.Skill);
+            row.classList.add("selected");
+            updateCount();
+          }
+          skillLevels.set(skill.Skill, n);
+          lvlBtns.querySelectorAll(".skill-lvl-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          renderTable();
+          syncURL();
+        });
+        lvlBtns.appendChild(btn);
+      });
+
+      nameWrap.appendChild(name);
+      nameWrap.appendChild(lvlBtns);
+
+      row.appendChild(icon);
+      row.appendChild(nameWrap);
+
+      row.addEventListener("click", () => toggleSkill(skill.Skill, row, lvlBtns));
+      skillList.appendChild(row);
+    }
+
+    group.appendChild(catHeader);
+    group.appendChild(skillList);
+    container.appendChild(group);
+  }
+}
+
+// ── Toggle skill selection ────────────────────────────────────────────────────
+function toggleSkill(skillName, rowEl, lvlBtns) {
+  if (selected.has(skillName)) {
+    selected.delete(skillName);
+    skillLevels.delete(skillName);
+    rowEl.classList.remove("selected");
+    lvlBtns.querySelectorAll(".skill-lvl-btn").forEach(b => b.classList.remove("active"));
+  } else {
+    selected.add(skillName);
+    skillLevels.set(skillName, 3);
+    rowEl.classList.add("selected");
+    // activate the "1-3" button (last one)
+    const btns = lvlBtns.querySelectorAll(".skill-lvl-btn");
+    btns.forEach(b => b.classList.remove("active"));
+    btns[btns.length - 1].classList.add("active");
+  }
+  updateCount();
+  renderTable();
+  syncURL();
+}
+
+function updateCount() {
+  document.getElementById("sel-count").textContent = selected.size;
+}
+
+// ── Render preview table ──────────────────────────────────────────────────────
+function renderTable() {
+  const empty = document.getElementById("empty-state");
+  const tableWrap = document.getElementById("table-container");
+
+  if (selected.size === 0) {
+    empty.style.display = "";
+    tableWrap.style.display = "none";
+    return;
+  }
+
+  empty.style.display = "none";
+  tableWrap.style.display = "";
+
+  // Filter and preserve category order
+  const grouped = groupByCategory(SKILLS_DATA);
+  const rows = [];
+
+  // Notice for skills without icons (only show selected ones)
+  const missingIcons = NO_ICON_SKILLS.filter(s => selected.has(s));
+
+  let html = "";
+
+  if (missingIcons.length > 0) {
+    html += `<div class="notice-bar">
+      <strong>&#9888; No icon available</strong> for: ${missingIcons.join(", ")}. 
+      These skills are displayed with a placeholder. You may add matching icon files to <code>assets/skills/</code> to resolve this.
+    </div>`;
+  }
+
+  html += `<div class="skills-table-wrap"><table class="skills-table"><tbody>`;
+
+  for (const [category, skills] of grouped) {
+    const catSkills = skills.filter(s => selected.has(s.Skill));
+    if (catSkills.length === 0) continue;
+
+    html += `<tr class="category-row"><td colspan="3">${category}</td></tr>`;
+
+    for (const skill of catSkills) {
+      const iconKey = ICON_MAP[skill.Skill];
+      const iconHtml = iconKey
+        ? `<img src="assets/skills/${iconKey}.png" alt="${skill.Skill}" class="tbl-icon-large">`
+        : `<div class="tbl-icon-ph" title="No icon">?</div>`;
+
+      const numLevels = skillLevels.get(skill.Skill) || 3;
+      const levels = [
+        { label: "Level 1", text: skill["Level 1 Action"] },
+        { label: "Level 2", text: skill["Level 2 Action"] },
+        { label: "Level 3", text: skill["Level 3 Action"] },
+      ].slice(0, numLevels);
+
+      levels.forEach((lvl, i) => {
+        const isFirst = i === 0;
+        const isLast  = i === numLevels - 1;
+        const rowClass = isLast ? "skill-data-row skill-row-last" : "skill-data-row";
+        const identityCell = isFirst
+          ? `<td class="skill-identity-cell" rowspan="${numLevels}">
+               <span class="skill-name-label">${skill.Skill}</span>
+               ${iconHtml}
+             </td>`
+          : "";
+        html += `<tr class="${rowClass}">
+          ${identityCell}
+          <td class="level-cell"><span class="level-label">${lvl.label}</span></td>
+          <td class="level-text">${lvl.text}</td>
+        </tr>`;
+      });
+    }
+  }
+
+  html += `</tbody></table></div>`;
+  tableWrap.innerHTML = html;
+}
+
+// ── Clear all ─────────────────────────────────────────────────────────────────
+document.getElementById("btn-clear").addEventListener("click", () => {
+  selected.clear();
+  skillLevels.clear();
+  document.querySelectorAll(".skill-row.selected").forEach(r => r.classList.remove("selected"));
+  document.querySelectorAll(".skill-lvl-btn.active").forEach(b => b.classList.remove("active"));
+  updateCount();
+  renderTable();
+  syncURL();
+});
+
+// ── URL state sync ───────────────────────────────────────────────────────────
+function syncURL() {
+  if (skillLevels.size === 0) {
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    return;
+  }
+  const parts = [];
+  for (const [skillName, level] of skillLevels) {
+    const idx = SKILLS_DATA.findIndex(s => s.Skill === skillName);
+    if (idx !== -1) parts.push(`${idx}:${level}`);
+  }
+  history.replaceState(null, "", "#s=" + parts.join(","));
+}
+
+function restoreFromURL() {
+  const hash = window.location.hash;
+  if (!hash.startsWith("#s=")) return;
+  const parts = hash.slice(3).split(",");
+  for (const part of parts) {
+    const [idxStr, levelStr] = part.split(":");
+    const idx = parseInt(idxStr, 10);
+    const level = parseInt(levelStr, 10);
+    if (isNaN(idx) || isNaN(level) || idx < 0 || idx >= SKILLS_DATA.length || level < 1 || level > 3) continue;
+    const skillName = SKILLS_DATA[idx].Skill;
+    const row = document.querySelector(`.skill-row[data-skill="${CSS.escape(skillName)}"]`);
+    if (!row) continue;
+    selected.add(skillName);
+    skillLevels.set(skillName, level);
+    row.classList.add("selected");
+    const btns = row.querySelectorAll(".skill-lvl-btn");
+    btns.forEach(b => b.classList.remove("active"));
+    const targetBtn = [...btns].find(b => parseInt(b.dataset.levels, 10) === level);
+    if (targetBtn) targetBtn.classList.add("active");
+  }
+  if (selected.size > 0) { updateCount(); renderTable(); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildSelector();
+restoreFromURL();
+</script>
+</body>
+</html>
