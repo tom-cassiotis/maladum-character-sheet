@@ -292,5 +292,12 @@
     "Level 1 Action": "Reaction: Teamwork! When this character or another friendly character within short range and LoS makes an attack, for each friendly character in contact with themselves or target, add one die or gain Vicious (max X).",
     "Level 2 Action": "Reaction: We Trained for This! Use after Event Card drawn or before arrival of characters... This character and all others in short range may take one action for free (can become Fatigued for second action). Passive: During friendly turn, unactivated characters can become Fatigued to take action.",
     "Level 3 Action": "Use when in a room containing no enemies. You may close any doors, flip Entry Points, reposition characters... Then, for each friendly character in the room, replace uppermost peg in Dread Tracker with a green one..."
+  },
+  {
+    "Category": "Townsfolk",
+    "Skill": "Unlikely Hero",
+    "Level 1 Action": "This character makes use of their seemingly mundane talents for the good of the party. In the campaign phases between games, this character may spend up to X pegs. For each peg spent: • Escape Phase: Adjust a Left for Dead roll for this Adventurer by 1. • Advancement Phase: Add one Experience to any Adventurer in your party (max 1 per Phase, Adventurer’s rank may be no higher than X). • Market Phase: Ignore the Upkeep for an Adventurer. • Rest Phase: Re-roll any result at the Inn or in the Wilderness. Passive: This character is never targeted by enemies unless they are the only target in LoS.",
+    "Level 2 Action": "Passive: This character may spend the party’s Renown as if it were their own Skill pegs.",
+    "Level 3 Action": "Reaction: This character seems to be exceptionally lucky and unlucky at the same time. Use after rolling an attack for or against this character. If this character is attacking, the attack causes one additional damage regardless of the roll, and is considered to have rolled a critical hit. If this character is being attacked, ignore all effects of the attack and Stun the attacker. Then draw and resolve an Event Card."
   }
 ]
