@@ -307,6 +307,7 @@ header h1 span { color: rgba(255,255,255,0.65); font-size: 1rem; font-weight: no
   width: 100%;
   border-collapse: collapse;
   font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .skills-table thead tr {
@@ -335,14 +336,16 @@ header h1 span { color: rgba(255,255,255,0.65); font-size: 1rem; font-weight: no
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 5px 12px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
-/* Bottom border only on the last row of each skill group */
-.skills-table tbody tr.skill-row-last {
-  border-bottom: 2px solid var(--border);
+/* Separator line between skills — level and description columns only */
+.skills-table tbody tr.skill-row-last td:not(.skill-identity-cell) {
+  border-bottom: 1px solid var(--border);
 }
 
-.skills-table tbody tr.skill-row-last:last-child { border-bottom: none; }
+.skills-table tbody:last-child tr.skill-row-last td:not(.skill-identity-cell) { border-bottom: none; }
 
 .skills-table td {
   padding: 8px 12px;
@@ -546,11 +549,12 @@ header h1 span { color: rgba(255,255,255,0.65); font-size: 1rem; font-weight: no
   .preview-panel { display: block !important; height: auto !important; max-height: none !important; overflow: visible !important; }
   .preview-scroll { overflow: visible !important; height: auto !important; max-height: none !important; padding: 0; }
 
-  .skills-table { font-size: 8pt; }
+  .skills-table { font-size: 8pt; border-bottom: 1px solid #ccc !important; }
   .skills-table thead tr { background: #ddd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .skills-table th { color: #333 !important; }
-  .category-row td { background: #eee !important; color: #333 !important; border-left: 3px solid #888 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .skill-row-last { border-bottom: 1px solid #ccc !important; }
+  .category-row td { background: #eee !important; color: #333 !important; border-left: 3px solid #888 !important; border-top: 1px solid #ccc !important; border-bottom: 1px solid #ccc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .skill-row-last td:not(.skill-identity-cell) { border-bottom: 1px solid #ccc !important; }
+  .skills-table tbody:last-child tr.skill-row-last td:not(.skill-identity-cell) { border-bottom: none !important; }
   .skill-name-label { color: #333 !important; font-size: 8pt !important; }
   .skill-identity-cell { border-right: 1px solid #ddd !important; width: 85px !important; max-width: 85px !important; }
   .level-cell { border-right: 1px solid #eee !important; width: 44px !important; white-space: nowrap; }
