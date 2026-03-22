@@ -425,10 +425,112 @@
     }
     .notice-bar strong { color: var(--accent); }
 
+    /* ── Mobile layout ─────────────────────────────────────── */
+    .mobile-tab-bar { display: none; }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 10px 16px;
+      }
+      header h1 {
+        font-size: 1.2rem;
+      }
+      header h1 span { display: none; }
+      .header-actions { gap: 6px; }
+      .btn { padding: 7px 12px; font-size: 0.82rem; }
+
+      /* App becomes a single full-height column; panels are layered */
+      .app {
+        flex-direction: column;
+        height: auto;
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Both panels fill the available space but only active one is shown */
+      .selector-panel {
+        width: 100%;
+        min-width: unset;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex: 1;
+        display: none;
+        box-shadow: none;
+      }
+      .selector-panel.mobile-active { display: flex; }
+
+      .preview-panel {
+        flex: 1;
+        display: none;
+      }
+      .preview-panel.mobile-active { display: flex; }
+
+      /* Smaller icons in selector on mobile */
+      :root { --skill-left-icon-size: 36px; }
+
+      /* Tighter table on mobile */
+      .preview-scroll { padding: 10px; }
+      .skills-table td { padding: 6px 8px; }
+      .tbl-icon-large { width: 54px !important; height: 54px !important; }
+      .skill-identity-cell { padding: 10px 8px !important; }
+
+      /* Bottom tab bar */
+      .mobile-tab-bar {
+        display: flex;
+        flex-shrink: 0;
+        width: 100%;
+        height: 58px;
+        background: linear-gradient(135deg, var(--accent-dk) 0%, var(--accent) 100%);
+        border-top: 2px solid var(--accent-lt);
+      }
+
+      .tab-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        border: none;
+        background: transparent;
+        color: rgba(255,255,255,0.55);
+        font-family: inherit;
+        font-size: 0.7rem;
+        cursor: pointer;
+        padding: 6px 4px;
+        transition: background 0.15s, color 0.15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .tab-btn + .tab-btn {
+        border-left: 1px solid rgba(255,255,255,0.15);
+      }
+      .tab-btn.active {
+        color: #fff;
+        background: rgba(255,255,255,0.15);
+      }
+      .tab-icon { font-size: 1.3rem; line-height: 1; }
+
+      .tab-count-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.9);
+        color: var(--accent-dk);
+        border-radius: 99px;
+        padding: 0 6px;
+        font-size: 0.68rem;
+        font-weight: bold;
+        min-width: 18px;
+        text-align: center;
+        margin-left: 3px;
+        vertical-align: middle;
+      }
+      .tab-count-badge:empty, .tab-count-badge[data-zero] { display: none; }
+    }
+
     /* ── Print styles ────────────────────────────────────────── */
     @media print {
       body { background: var(--print-bg); color: #111; }
-      header, .selector-panel, .preview-header, .notice-bar, .btn { display: none !important; }
+      header, .selector-panel, .preview-header, .notice-bar, .btn, .mobile-tab-bar { display: none !important; }
 
       .app { height: auto; display: block; }
       .preview-panel { display: block; }
@@ -462,7 +564,7 @@
 <div class="app">
 
   <!-- ── Selector Panel ────────────────────────────────── -->
-  <aside class="selector-panel">
+  <aside class="selector-panel mobile-active">
     <div class="panel-header">
       <h2>Select Skills</h2>
       <span class="count-badge" id="sel-count">0</span>
@@ -486,6 +588,18 @@
   </section>
 
 </div>
+
+<!-- ── Mobile tab bar (hidden on desktop) ──────────────── -->
+<nav class="mobile-tab-bar">
+  <button class="tab-btn active" data-panel="selector">
+    <span class="tab-icon">&#9776;</span>
+    <span class="tab-label">Skills <span id="tab-count" class="tab-count-badge"></span></span>
+  </button>
+  <button class="tab-btn" data-panel="preview">
+    <span class="tab-icon">&#128203;</span>
+    <span class="tab-label">Reference</span>
+  </button>
+</nav>
 
 <script>
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -670,6 +784,10 @@ function buildSelector() {
           btn.classList.add("active");
           renderTable();
           syncURL();
+          // On mobile: switch to the reference tab after making a selection
+          if (window.matchMedia("(max-width: 768px)").matches) {
+            switchMobileTab("preview");
+          }
         });
         lvlBtns.appendChild(btn);
       });
@@ -712,8 +830,24 @@ function toggleSkill(skillName, rowEl, lvlBtns) {
 }
 
 function updateCount() {
-  document.getElementById("sel-count").textContent = selected.size;
+  const n = selected.size;
+  document.getElementById("sel-count").textContent = n;
+  const tabBadge = document.getElementById("tab-count");
+  if (tabBadge) {
+    tabBadge.textContent = n > 0 ? n : "";
+  }
 }
+
+// ── Mobile tab switching ──────────────────────────────────────────────────────
+function switchMobileTab(panel) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.panel === panel));
+  document.querySelector(".selector-panel").classList.toggle("mobile-active", panel === "selector");
+  document.querySelector(".preview-panel").classList.toggle("mobile-active", panel === "preview");
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => switchMobileTab(btn.dataset.panel));
+});
 
 // ── Render preview table ──────────────────────────────────────────────────────
 function renderTable() {
