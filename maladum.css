@@ -474,16 +474,50 @@ header h1 span { color: rgba(255,255,255,0.65); font-size: 1rem; font-weight: no
   /* Smaller icons in selector on mobile */
   :root { --skill-left-icon-size: 36px; }
 
-  /* Tighter table on mobile */
+  /* Single-column table layout for mobile */
+  .skills-table,
+  .skills-table tbody,
+  .skills-table tr,
+  .skills-table td { display: block; width: 100%; box-sizing: border-box; }
+  .skills-table thead { display: none; }
   .preview-scroll { padding: 10px; }
-  .skills-table td { padding: 6px 8px; }
-  .tbl-icon-large { width: 40px !important; height: 40px !important; }
-  .skill-identity-cell { padding: 8px 6px !important; min-width: 60px; max-width: 70px; }
-  .skill-name-label { font-size: 0.72rem !important; margin-bottom: 6px; }
+  .skills-table td { padding: 6px 10px; }
 
-  /* Level column: hide cell, show label at top of description */
-  .level-cell { display: none; }
-  .level-label-mobile { display: block; margin-bottom: 5px; }
+  /* Identity cell: flex row — icon on left, skill name on right */
+  .skill-identity-cell {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px;
+    text-align: left;
+    min-width: unset !important;
+    max-width: unset !important;
+    padding: 10px !important;
+    border-right: none !important;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .skill-identity-cell .tbl-icon-large,
+  .skill-identity-cell .tbl-icon-ph {
+    order: -1;
+    flex-shrink: 0;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 0;
+  }
+  .skill-name-label { font-size: 0.9rem !important; margin-bottom: 0; }
+
+  /* Level column: show as full-width block; suppress the inline mobile duplicate */
+  .level-cell { border-right: none; border-bottom: none; padding-left: 0 !important; padding-right: 0 !important; }
+  .level-cell .level-label {
+    display: block; width: 100%; text-align: center; box-sizing: border-box;
+    padding-left: 0; padding-right: 0;
+    border-left: none; border-right: none;
+  }
+  .level-label-mobile { display: none; }
+
+  /* Remove the between-skill separator on mobile — identity cell border-bottom is enough */
+  .skills-table tbody tr.skill-row-last td { border-bottom: none !important; }
 
   /* Bottom tab bar */
   .mobile-tab-bar {
