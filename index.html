@@ -364,6 +364,8 @@
       background: var(--skill-ident-bg);
       border-right: 1px solid var(--border);
       padding: 14px 10px !important;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .skill-name-label {
@@ -399,7 +401,7 @@
     }
 
     .level-cell {
-      vertical-align: middle !important;
+      vertical-align: top !important;
       border-right: 1px solid var(--border);
       white-space: nowrap;
     }
@@ -417,6 +419,7 @@
     }
 
     .level-text { color: var(--text); font-size: 0.83rem; }
+    .level-label-mobile { display: none; }
 
     /* ── No-icon notice ──────────────────────────────────────── */
     .notice-bar {
@@ -478,8 +481,13 @@
       /* Tighter table on mobile */
       .preview-scroll { padding: 10px; }
       .skills-table td { padding: 6px 8px; }
-      .tbl-icon-large { width: 54px !important; height: 54px !important; }
-      .skill-identity-cell { padding: 10px 8px !important; }
+      .tbl-icon-large { width: 40px !important; height: 40px !important; }
+      .skill-identity-cell { padding: 8px 6px !important; min-width: 60px; max-width: 70px; }
+      .skill-name-label { font-size: 0.72rem !important; margin-bottom: 6px; }
+
+      /* Level column: hide cell, show label at top of description */
+      .level-cell { display: none; }
+      .level-label-mobile { display: block; margin-bottom: 5px; }
 
       /* Bottom tab bar */
       .mobile-tab-bar {
@@ -538,25 +546,26 @@
 
     /* ── Print styles ────────────────────────────────────────── */
     @media print {
-      body { background: var(--print-bg); color: #111; }
+      body { background: var(--print-bg); color: #111; height: auto !important; max-height: none !important; overflow: visible !important; }
       header, .selector-panel, .preview-header, .notice-bar, .btn, .mobile-tab-bar { display: none !important; }
 
-      .app { height: auto; display: block; }
-      .preview-panel { display: block; }
-      .preview-scroll { overflow: visible; padding: 0; }
+      .app { height: auto !important; max-height: none !important; overflow: visible !important; display: block; }
+      .preview-panel { display: block !important; height: auto !important; max-height: none !important; overflow: visible !important; }
+      .preview-scroll { overflow: visible !important; height: auto !important; max-height: none !important; padding: 0; }
 
       .skills-table { font-size: 8pt; }
       .skills-table thead tr { background: #ddd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .skills-table th { color: #333 !important; }
       .category-row td { background: #eee !important; color: #333 !important; border-left: 3px solid #888 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .skill-row-last { border-bottom: 1px solid #ccc !important; }
-      .skill-name-label { color: #333 !important; }
-      .skill-identity-cell { border-right: 1px solid #ddd !important; }
-      .level-cell { border-right: 1px solid #eee !important; }
+      .skill-name-label { color: #333 !important; font-size: 8pt !important; }
+      .skill-identity-cell { border-right: 1px solid #ddd !important; width: 85px !important; max-width: 85px !important; }
+      .level-cell { border-right: 1px solid #eee !important; width: 44px !important; white-space: nowrap; }
       .level-label { color: #555 !important; background: #f0f0f0 !important; border-color: #bbb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .level-text { color: #222 !important; }
       .tbl-icon-ph { border-color: #ccc !important; }
-      .tbl-icon-large { width: var(--skill-print-icon-size) !important; height: var(--skill-print-icon-size) !important; }
+      .tbl-icon-large { width: 62px !important; height: 62px !important; }
+      .skill-body { break-inside: avoid; page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -565,8 +574,8 @@
 <header>
   <h1>Maladum <span>— Character Skill Sheet</span></h1>
   <div class="header-actions">
-    <button class="btn btn-secondary" id="btn-clear">Clear All</button>
-    <button class="btn btn-primary" id="btn-print" onclick="window.print()">&#128438; Print / Save PDF</button>
+    <button class="btn btn-secondary" id="btn-clear">Clear</button>
+    <button class="btn btn-primary" id="btn-print" onclick="window.print()">&#128438; PDF</button>
   </div>
 </header>
 
@@ -574,18 +583,11 @@
 
   <!-- ── Selector Panel ────────────────────────────────── -->
   <aside class="selector-panel mobile-active">
-    <div class="panel-header">
-      <h2>Select Skills</h2>
-      <span class="count-badge" id="sel-count">0</span>
-    </div>
     <div class="selector-scroll" id="skill-list-container"></div>
   </aside>
 
   <!-- ── Preview Panel ─────────────────────────────────── -->
   <section class="preview-panel">
-    <div class="preview-header">
-      <h2>Skill Reference Table</h2>
-    </div>
     <div class="preview-scroll" id="preview-container">
       <div class="empty-state" id="empty-state">
         <div class="icon">&#9876;&#65039;</div>
@@ -793,10 +795,6 @@ function buildSelector() {
           btn.classList.add("active");
           renderTable();
           syncURL();
-          // On mobile: switch to the reference tab after making a selection
-          if (window.matchMedia("(max-width: 768px)").matches) {
-            switchMobileTab("preview");
-          }
         });
         lvlBtns.appendChild(btn);
       });
@@ -840,7 +838,6 @@ function toggleSkill(skillName, rowEl, lvlBtns) {
 
 function updateCount() {
   const n = selected.size;
-  document.getElementById("sel-count").textContent = n;
   const tabBadge = document.getElementById("tab-count");
   if (tabBadge) {
     tabBadge.textContent = n > 0 ? n : "";
@@ -888,13 +885,13 @@ function renderTable() {
     </div>`;
   }
 
-  html += `<div class="skills-table-wrap"><table class="skills-table"><tbody>`;
+  html += `<div class="skills-table-wrap"><table class="skills-table">`;
 
   for (const [category, skills] of grouped) {
     const catSkills = skills.filter(s => selected.has(s.Skill));
     if (catSkills.length === 0) continue;
 
-    html += `<tr class="category-row"><td colspan="3">${category}</td></tr>`;
+    html += `<tbody><tr class="category-row"><td colspan="3">${category}</td></tr></tbody>`;
 
     for (const skill of catSkills) {
       const iconKey = ICON_MAP[skill.Skill];
@@ -909,6 +906,7 @@ function renderTable() {
         { label: "Level 3", text: skill["Level 3 Action"] },
       ].slice(0, numLevels);
 
+      html += `<tbody class="skill-body">`;
       levels.forEach((lvl, i) => {
         const isFirst = i === 0;
         const isLast  = i === numLevels - 1;
@@ -922,13 +920,14 @@ function renderTable() {
         html += `<tr class="${rowClass}">
           ${identityCell}
           <td class="level-cell"><span class="level-label">${lvl.label}</span></td>
-          <td class="level-text">${lvl.text}</td>
+          <td class="level-text"><span class="level-label level-label-mobile">${lvl.label}</span>${lvl.text}</td>
         </tr>`;
       });
+      html += `</tbody>`;
     }
   }
 
-  html += `</tbody></table></div>`;
+  html += `</table></div>`;
   tableWrap.innerHTML = html;
 }
 
