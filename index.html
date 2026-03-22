@@ -30,7 +30,9 @@
       font-family: "Georgia", serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
@@ -40,6 +42,10 @@
 
     /* ── Header ──────────────────────────────────────────────── */
     header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
       background: linear-gradient(135deg, var(--accent-dk) 0%, var(--accent) 50%, var(--accent-dk) 100%);
       border-bottom: 3px solid var(--accent-lt);
       padding: 18px 32px;
@@ -90,7 +96,7 @@
       flex: 1;
       gap: 0;
       overflow: hidden;
-      height: calc(100vh - 70px);
+      min-height: 0;
     }
 
     /* ── Skill Selector Panel ────────────────────────────────── */
@@ -442,8 +448,8 @@
       /* App becomes a single full-height column; panels are layered */
       .app {
         flex-direction: column;
-        height: auto;
         flex: 1;
+        min-height: 0;
         overflow: hidden;
         position: relative;
       }
@@ -483,6 +489,9 @@
         height: 58px;
         background: linear-gradient(135deg, var(--accent-dk) 0%, var(--accent) 100%);
         border-top: 2px solid var(--accent-lt);
+        position: sticky;
+        bottom: 0;
+        z-index: 100;
       }
 
       .tab-btn {
