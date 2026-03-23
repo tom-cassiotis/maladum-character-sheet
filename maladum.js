@@ -290,7 +290,7 @@ function renderIconsReference() {
 
   container.style.display = '';
 
-  const icons = ICONS_DATA.filter(ic => selectedIcons.has(ic.id));
+  const icons = ICONS_DATA.filter(ic => selectedIcons.has(ic.id)).sort((a, b) => a.name.localeCompare(b.name));
   let html = '<div class="icons-reference">';
   html += '<div class="icons-ref-header">Icons Reference</div>';
   html += '<div class="icons-ref-grid">';
