@@ -1,0 +1,405 @@
+[
+    {
+        "name": "First strike",
+        "description": "When this character enters within melee range of an enemy (including when placed or when a door opens), it gets an immediate free melee attack action.",
+        "id": "first_strike"
+    },
+    {
+        "name": "Parry",
+        "description": "When the user of this item is the target of a melee attack, you may roll a combat die. Each hit scored negates 1 hit from the enemy's attack as if it were physical armour.",
+        "id": "parry"
+    },
+    {
+        "name": "Rough ground",
+        "description": "This area use rough ground rules with the value shown. If it has a negative value it reduces the effect of any area of rough ground you are in.",
+        "id": "rough_ground"
+    },
+    {
+        "name": "X dice",
+        "description": "The attack may roll an additional number of dice equal to the number of pegs spent.",
+        "id": "x_dice"
+    },
+    {
+        "name": "Fly",
+        "description": "This character gains scramble, ignores the first hit of any attack of opportunity, and cannot be knocked prone (but other parts of a rule can still make them prone).",
+        "id": "fly"
+    },
+    {
+        "name": "Ammunition",
+        "description": "A character firing this weapon must have a gear or armour token of the matching type to fire it. Throwing stars are a weapon in themselves and do not require a separate gear token; the token itself is discarded if they run out.",
+        "id": "ammo_arrow"
+    },
+    {
+        "name": "Hawkeye",
+        "description": "This attack ignores partial cover and can fire at engaged characters at any range without randomisation.",
+        "id": "hawkeye"
+    },
+    {
+        "name": "Hazardous",
+        "description": "When used, roll the blue die. On a hit, the item's normal effects are applied. On a [symbol], the user suffers the effects shown instead. On a blank, no effects are applied.",
+        "id": "hazardous"
+    },
+    {
+        "name": "Balanced",
+        "description": "This weapon rolls +1 dice when thrown.",
+        "id": "balanced"
+    },
+    {
+        "name": "Scramble",
+        "description": "The top number is the maximum height or width in squares/inches of objects/characters that the character can move up or over as part of a normal move action (they do not need to climb or spend actions). The bottom number is the character's safe distance for jumping down or across.",
+        "id": "scramble"
+    },
+    {
+        "name": "Piercing",
+        "description": "Physical armour cannot negate hits from this weapon.",
+        "id": "piercing"
+    },
+    {
+        "name": "Plunderer",
+        "description": "If this attack causes damage, a random item from the defending character's inventory is scattered. If the attack also scored a critical hit the attacker may take the item instead.",
+        "id": "plunderer"
+    },
+    {
+        "name": "Sharp",
+        "description": "If this weapon rolls a critical hit the target is wounded, even if no damage was caused.",
+        "id": "sharp"
+    },
+    {
+        "name": "Bludgeoning",
+        "description": "If this attack rolls a critical hit, the target is fatigued, even if no damage was caused. The target suffers 1 additional fatigued counter for each damage caused. This attack rolls 1 extra die when attacking terrain pieces.",
+        "id": "bludgeoning"
+    },
+    {
+        "name": "Hidden location",
+        "description": "Draw the hidden location card with the matching number and return the token to its supply (pouch for common tokens, separate bag otherwise).",
+        "id": "hidden_location"
+    },
+    {
+        "name": "Book",
+        "description": "In the next market phase after obtaining this item, roll the magic die. (1-2: Worthless; 3-5: Sold for equal to roll; 6-7: Adventurer gains 1 XP; 8: Add 1 random relic resource to pouch).",
+        "id": "book"
+    },
+    {
+        "name": "Hit and run",
+        "description": "After making a melee attack, if this character is still engaged it makes a free move directly away from the defender, ignoring attacks of opportunity, if there is space. It will not engage other enemies with this move.",
+        "id": "hit_and_run"
+    },
+    {
+        "name": "Poison",
+        "description": "If this weapon rolls a critical hit, the target is poisoned, even if no damage was caused.",
+        "id": "poison"
+    },
+    {
+        "name": "Shield block",
+        "description": "This character may spend an action to raise their shield to gain the effects shown. Return it to the inventory if the user takes any action other than move/dash, suffers damage, or becomes stunned. Can be raised out of turn before dice are rolled, making the character fatigued.",
+        "id": "shield_block"
+    },
+    {
+        "name": "Preparation",
+        "description": "After this weapon is used, turn the token 180° and it cannot be used. It requires an action to ready the weapon for use again.",
+        "id": "preparation"
+    },
+    {
+        "name": "Purification",
+        "description": "When used, the character may replace their X rightmost black HEALTH pegs with green ones.",
+        "id": "purification"
+    },
+    {
+        "name": "Immobile",
+        "description": "This character cannot move or be moved unless a rule explicitly states otherwise.",
+        "id": "immobile"
+    },
+    {
+        "name": "Immunity",
+        "description": "This icon is seen alongside other abilities and statuses. This character does not suffer any counters or effects from the ability shown.",
+        "id": "immunity"
+    },
+    {
+        "name": "Burning",
+        "description": "If this attack rolls a critical hit, the target is Burning, even if no damage was caused. Equipment with this icon is considered a source of fire.",
+        "id": "burning"
+    },
+    {
+        "name": "Camouflage",
+        "description": "This character can only be targeted by ranged attacks from within short range.",
+        "id": "camouflage"
+    },
+    {
+        "name": "Indestructible",
+        "description": "This item ignores any rule that would cause it to break. If you need to determine a random item to be broken, choose another if possible.",
+        "id": "indestructible"
+    },
+    {
+        "name": "Quickstrike",
+        "description": "If this weapon rolls a critical hit during a melee attack, you may dash or make another attack for free after the initial attack is resolved.",
+        "id": "quickstrike"
+    },
+    {
+        "name": "Size",
+        "description": "This character is smaller or larger than an average human and additional rules apply.",
+        "id": "size"
+    },
+    {
+        "name": "Skill",
+        "description": "The skill shown can be used by the character at up to the level shown, exactly as if it was on the character's class board.",
+        "id": "skill",
+        "disabled": true
+    },
+    {
+        "name": "Rank",
+        "description": "The power level of an NPC. NPCs activate in order of rank, starting with the highest.",
+        "id": "rank"
+    },
+    {
+        "name": "Reach",
+        "description": "May make a melee attack against an enemy up to X squares away, including diagonally. Unless in contact, characters are not considered engaged. Verticality applies on multi-level terrain.",
+        "id": "reach"
+    },
+    {
+        "name": "Stash",
+        "description": "This item may be instantly discarded when found to add its value to your stash (it doesn't need to go into the inventory).",
+        "id": "stash"
+    },
+    {
+        "name": "Infinite ammo",
+        "description": "When this token is used for a ranged attack, it ignores rules that would cause you to run out of ammunition.",
+        "id": "infinite_ammo"
+    },
+    {
+        "name": "Terrifying",
+        "description": "If this character rolls a critical hit when attacking, the target is terrified. If an enemy ends their turn within short range, roll the magic die; on a 1 they become terrified.",
+        "id": "terrifying"
+    },
+    {
+        "name": "Channel",
+        "description": "Seen alongside other stats or abilities. At least 1 magic peg must be spent to use/activate. X values can be improved by spending more pegs.",
+        "id": "channel"
+    },
+    {
+        "name": "Key",
+        "description": "A character carrying this item may lock or unlock any door or terrain piece as an effortless action.",
+        "id": "key"
+    },
+    {
+        "name": "Forbidden channel",
+        "description": "As Channel, but the forbidden magic die must be rolled instead of the regular magic die.",
+        "id": "forbidden_channel"
+    },
+    {
+        "name": "Cleave",
+        "description": "If this melee attack defeats an enemy, you may resolve the same attack against another eligible enemy, removing 1 hit. This continues until you fail to defeat an enemy or none remain.",
+        "id": "cleave"
+    },
+    {
+        "name": "Lasting effect",
+        "description": "Lasts until the end of the round (rotate 180°). You may spend X magic pegs to add reminder counters to remove one each assessment phase instead of discarding/rotating.",
+        "id": "lasting_effect",
+        "disabled": true
+    },
+    {
+        "name": "Trap",
+        "description": "Can be set in an adjacent square with an interact action. Triggered by entering its square or adjacent square. Flip facedown after use; check for breakage on a [symbol] roll.",
+        "id": "trap"
+    },
+    {
+        "name": "Reactive",
+        "description": "Once per turn, if another character starts their turn or enters range of this character's attacks, this character immediately makes a free attack against them, interrupting movement.",
+        "id": "reactive"
+    },
+    {
+        "name": "Crafting-Resource",
+        "description": "Item used as an ingredient for crafting. Letter and colour determine resource type. Numbered items craft unique relics.",
+        "id": "crafting_resource",
+        "disabled": true
+    },
+    {
+        "name": "Location specific",
+        "description": "Unless stated otherwise, this item only works in the quest in which it was found, or the next quest if purchased in a market phase.",
+        "id": "location_specific"
+    },
+    {
+        "name": "Regeneration (peg type)",
+        "description": "In the assessment phase, restore X pegs of the type shown. Cumulative from multiple sources.",
+        "id": "regeneration"
+    },
+    {
+        "name": "Unarmed combat",
+        "description": "Found on character board; allows melee attacks even without a weapon.",
+        "id": "unarmed_combat"
+    },
+    {
+        "name": "Creature",
+        "description": "Unless stated otherwise, this character cannot open doors, search, use equipment or interact with terrain.",
+        "id": "creature"
+    },
+    {
+        "name": "Cumbersome",
+        "description": "If attack rolls [symbol] and is not broken, rotate 180° (requires effortless action to ready). Cannot be thrown.",
+        "id": "cumbersome"
+    },
+    {
+        "name": "Loud",
+        "description": "Increase the dread by 1 when this item is used.",
+        "id": "loud"
+    },
+    {
+        "name": "Relentless",
+        "description": "A character attacked multiple times in 1 round by relentless characters has their physical armour reduced by 1 for each attack after the first (min 0).",
+        "id": "relentless"
+    },
+    {
+        "name": "Lull",
+        "description": "Reduce dread by the number when this item is used.",
+        "id": "lull"
+    },
+    {
+        "name": "Unreliable",
+        "description": "If an attack rolls a single [symbol] it has jammed (rotate 180°). If it rolls 2 or more, it has broken.",
+        "id": "unreliable"
+    },
+    {
+        "name": "Magical armour",
+        "description": "Spend an action and up to X magic pegs to increase warded value by X. Rotate 180° to mark active.",
+        "id": "magical_armour"
+    },
+    {
+        "name": "Curse",
+        "description": "If this weapon rolls a critical hit, the target is cursed, even if no damage was caused.",
+        "id": "curse"
+    },
+    {
+        "name": "Malacyte enhancement",
+        "description": "This character may cast spells with 1 more magic peg than their rank allows.",
+        "id": "malacyte_enhancement"
+    },
+    {
+        "name": "Re-roll",
+        "description": "On weapon: re-roll 1 combat die per use. On character/token: re-roll 1 die of any type used for any action on their behalf.",
+        "id": "re_roll"
+    },
+    {
+        "name": "Unsanctioned",
+        "description": "This character follows the rules for unsanctioned Maladaar.",
+        "id": "unsanctioned"
+    },
+    {
+        "name": "Darkness",
+        "description": "Treat item as the appropriate counter. Affects area in short range and moves with the character.",
+        "id": "darkness"
+    },
+    {
+        "name": "Light",
+        "description": "Treat item as the appropriate counter. Affects area in short range and moves with the character.",
+        "id": "light"
+    },
+    {
+        "name": "Malacyte stability",
+        "description": "You may discard a magic peg to re-roll the magic die.",
+        "id": "malacyte_stability"
+    },
+    {
+        "name": "Vampiric (peg type)",
+        "description": "On critical hit, target loses a peg of shown type (or type they have most of) and attacker restores a peg of same type or becomes blessed.",
+        "id": "vampiric"
+    },
+    {
+        "name": "Rest",
+        "description": "Only used during a rest action. Discard token to apply shown abilities.",
+        "id": "rest"
+    },
+    {
+        "name": "Defensive re-roll",
+        "description": "Force 1 die to be re-rolled from an attack against them (unless it ignores physical armour). Critical hits cannot be re-rolled.",
+        "id": "defensive_re_roll"
+    },
+    {
+        "name": "Restore Skill",
+        "description": "When used, restores X skill pegs to user or contact.",
+        "id": "restore_skill"
+    },
+    {
+        "name": "Restore Health",
+        "description": "When used, restores X pegs or grants X additional actions to user or contact.",
+        "id": "restore_health"
+    },
+    {
+        "name": "Restore Magic",
+        "description": "When used, restores X magic pegs to user or contact.",
+        "id": "restore_magic"
+    },
+    {
+        "name": "Restore Action",
+        "description": "When used, restores X actions to user or contact. Actions must be used in the character's turn in the current round",
+        "id": "restore_action"
+    },
+    {
+        "name": "Malacytic conduit",
+        "description": "At the start of each turn, add a blue peg to the dread tracker. Applies while carried/worn if on an item.",
+        "id": "malacytic_conduit"
+    },
+    {
+        "name": "Master",
+        "description": "Found on companions/summons. Linked ability applies to controlling character while within short range.",
+        "id": "master"
+    },
+    {
+        "name": "Discard",
+        "description": "When used, return this item to the supply.",
+        "id": "discard"
+    },
+    {
+        "name": "Effortless",
+        "description": "This item can be used as an effortless action.",
+        "id": "effortless"
+    },
+    {
+        "name": "Vicious",
+        "description": "Results on the blue die on attacks made with this weapon are critical hits.",
+        "id": "vicious"
+    },
+    {
+        "name": "Retaliation",
+        "description": "If blocking at least 1 hit from a melee attack that rolls [symbol], resolve an attack against the attacker with one die for each [symbol] rolled.",
+        "id": "retaliation"
+    },
+    {
+        "name": "Night sight",
+        "description": "This character ignores all effects of darkness.",
+        "id": "night_sight"
+    },
+    {
+        "name": "Volatile",
+        "description": "If attack rolls [symbol] on blue die, user takes 1 damage and adjacent characters are attacked with burning rule.",
+        "id": "volatile"
+    },
+    {
+        "name": "Entangling",
+        "description": "If attack hits, target is fatigued. On critical hit, target is knocked prone. Effects apply even if no damage caused.",
+        "id": "entangling"
+    },
+    {
+        "name": "Otherworldly",
+        "description": "Originates from another dimension. No effect on its own but interacts with other rules.",
+        "id": "otherworldly"
+    },
+    {
+        "name": "Fast",
+        "description": "This character can move X additional squares when making a move action.",
+        "id": "fast"
+    },
+    {
+        "name": "Pack",
+        "description": "Characters arrive in groups. Place the number shown instead of a single character; they activate individually.",
+        "id": "pack"
+    },
+    {
+        "name": "Worthy opponent",
+        "description": "If an adventurer defeats this character, their party gains 1 RENOWN. Appears only once per quest.",
+        "id": "worthy_opponent"
+    },
+    {
+        "name": "Rope",
+        "description": "Action to place in contact. Allows characters to climb (1 action per level) or jump across gaps (adding 2 to safe distance).",
+        "id": "rope"
+    }
+]

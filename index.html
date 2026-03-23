@@ -20,7 +20,10 @@
 
   <!-- ── Selector Panel ────────────────────────────────── -->
   <aside class="selector-panel mobile-active">
-    <div class="selector-scroll" id="skill-list-container"></div>
+    <div class="selector-scroll">
+      <div id="skill-list-container"></div>
+      <div id="icon-list-container"></div>
+    </div>
   </aside>
 
   <!-- ── Preview Panel ─────────────────────────────────── -->
@@ -28,10 +31,11 @@
     <div class="preview-scroll" id="preview-container">
       <div class="empty-state" id="empty-state">
         <div class="icon">&#9876;&#65039;</div>
-        <p>No skills selected yet</p>
-        <small>Choose skills from the panel on the left to build your character's reference sheet.</small>
+        <p>No skills or icons selected yet</p>
+        <small>Choose skills and icons from the panel on the left to build your character's reference sheet.</small>
       </div>
       <div id="table-container" style="display:none;"></div>
+      <div id="icons-reference-container" style="display:none;"></div>
     </div>
   </section>
 

@@ -6,8 +6,10 @@ function toIconKey(skillName) {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let SKILLS_DATA = [];
+let ICONS_DATA = [];
 const selected = new Set();
 const skillLevels = new Map(); // skill name -> levels to show: 1, 2, or 3
+const selectedIcons = new Set(); // icon id -> selected
 
 // ── Group data by category ────────────────────────────────────────────────────
 function groupByCategory(data) {
@@ -130,9 +132,14 @@ function toggleSkill(skillName, rowEl, lvlBtns) {
 }
 
 function updateCount() {
-  const n = selected.size;
+  const n = selected.size + selectedIcons.size;
   const tabBadge = document.getElementById('tab-count');
   if (tabBadge) tabBadge.textContent = n > 0 ? n : '';
+}
+
+function updateEmptyState() {
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.style.display = (selected.size === 0 && selectedIcons.size === 0) ? '' : 'none';
 }
 
 // ── Mobile tab switching ──────────────────────────────────────────────────────
@@ -148,16 +155,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 // ── Render preview table ──────────────────────────────────────────────────────
 function renderTable() {
-  const empty = document.getElementById('empty-state');
   const tableWrap = document.getElementById('table-container');
+  updateEmptyState();
 
   if (selected.size === 0) {
-    empty.style.display = '';
     tableWrap.style.display = 'none';
     return;
   }
 
-  empty.style.display = 'none';
   tableWrap.style.display = '';
 
   const grouped = groupByCategory(SKILLS_DATA);
@@ -213,52 +218,184 @@ function renderTable() {
   });
 }
 
+// ── Build icon selector ───────────────────────────────────────────────────────
+function buildIconSelector() {
+  const container = document.getElementById('icon-list-container');
+  if (!ICONS_DATA.length) return;
+
+  const sectionHeader = document.createElement('div');
+  sectionHeader.className = 'icons-section-header';
+  sectionHeader.innerHTML = '<span>Icons Reference</span><em class="chevron">&#9660;</em>';
+  sectionHeader.addEventListener('click', () => {
+    container.classList.toggle('icons-collapsed');
+  });
+
+  const iconList = document.createElement('div');
+  iconList.className = 'icon-selector-list';
+
+  for (const icon of ICONS_DATA) {
+    if (icon.disabled) continue;
+
+    const row = document.createElement('div');
+    row.className = 'icon-row';
+    row.dataset.iconId = icon.id;
+
+    const img = document.createElement('img');
+    img.src = `assets/icons/${icon.id}.png`;
+    img.alt = icon.name;
+    img.className = 'selector-icon-img';
+    img.addEventListener('error', () => {
+      const ph = document.createElement('div');
+      ph.className = 'selector-icon-ph';
+      ph.textContent = '?';
+      img.replaceWith(ph);
+    }, { once: true });
+
+    const name = document.createElement('span');
+    name.className = 'icon-row-name';
+    name.textContent = icon.name;
+
+    row.appendChild(img);
+    row.appendChild(name);
+
+    row.addEventListener('click', () => {
+      if (selectedIcons.has(icon.id)) {
+        selectedIcons.delete(icon.id);
+        row.classList.remove('selected');
+      } else {
+        selectedIcons.add(icon.id);
+        row.classList.add('selected');
+      }
+      updateCount();
+      renderIconsReference();
+      syncURL();
+    });
+
+    iconList.appendChild(row);
+  }
+
+  container.appendChild(sectionHeader);
+  container.appendChild(iconList);
+}
+
+// ── Render icons reference ────────────────────────────────────────────────────
+function renderIconsReference() {
+  const container = document.getElementById('icons-reference-container');
+  updateEmptyState();
+
+  if (selectedIcons.size === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = '';
+
+  const icons = ICONS_DATA.filter(ic => selectedIcons.has(ic.id));
+  let html = '<div class="icons-reference">';
+  html += '<div class="icons-ref-header">Icons Reference</div>';
+  html += '<div class="icons-ref-grid">';
+  for (const icon of icons) {
+    html += `<div class="icon-ref-card">
+      <img src="assets/icons/${icon.id}.png" alt="${icon.name}" class="icon-ref-img">
+      <div class="icon-ref-content">
+        <div class="icon-ref-name">${icon.name}</div>
+        <div class="icon-ref-desc">${icon.description}</div>
+      </div>
+    </div>`;
+  }
+  html += '</div></div>';
+  container.innerHTML = html;
+
+  container.querySelectorAll('img.icon-ref-img').forEach(img => {
+    img.addEventListener('error', () => {
+      const ph = document.createElement('div');
+      ph.className = 'icon-ref-img-ph';
+      ph.textContent = '?';
+      img.replaceWith(ph);
+    }, { once: true });
+  });
+}
+
 // ── Clear all ─────────────────────────────────────────────────────────────────
 document.getElementById('btn-clear').addEventListener('click', () => {
   selected.clear();
   skillLevels.clear();
+  selectedIcons.clear();
   document.querySelectorAll('.skill-row.selected').forEach(r => r.classList.remove('selected'));
   document.querySelectorAll('.skill-lvl-btn.active').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.icon-row.selected').forEach(r => r.classList.remove('selected'));
   updateCount();
   renderTable();
+  renderIconsReference();
   syncURL();
 });
 
 // ── URL state sync ────────────────────────────────────────────────────────────
 function syncURL() {
-  if (skillLevels.size === 0) {
+  const skillParts = [];
+  for (const [skillName, level] of skillLevels) {
+    const idx = SKILLS_DATA.findIndex(s => s.Skill === skillName);
+    if (idx !== -1) skillParts.push(`${idx}:${level}`);
+  }
+  const iconParts = [...selectedIcons];
+
+  if (skillParts.length === 0 && iconParts.length === 0) {
     history.replaceState(null, '', window.location.pathname + window.location.search);
     return;
   }
-  const parts = [];
-  for (const [skillName, level] of skillLevels) {
-    const idx = SKILLS_DATA.findIndex(s => s.Skill === skillName);
-    if (idx !== -1) parts.push(`${idx}:${level}`);
-  }
-  history.replaceState(null, '', '#s=' + parts.join(','));
+  let hash = '';
+  if (skillParts.length > 0) hash += 's=' + skillParts.join(',');
+  if (iconParts.length > 0) { if (hash) hash += '&'; hash += 'i=' + iconParts.join(','); }
+  history.replaceState(null, '', '#' + hash);
 }
 
 function restoreFromURL() {
   const hash = window.location.hash;
-  if (!hash.startsWith('#s=')) return;
-  const parts = hash.slice(3).split(',');
-  for (const part of parts) {
-    const [idxStr, levelStr] = part.split(':');
-    const idx = parseInt(idxStr, 10);
-    const level = parseInt(levelStr, 10);
-    if (isNaN(idx) || isNaN(level) || idx < 0 || idx >= SKILLS_DATA.length || level < 1 || level > 3) continue;
-    const skillName = SKILLS_DATA[idx].Skill;
-    const row = document.querySelector(`.skill-row[data-skill="${CSS.escape(skillName)}"]`);
-    if (!row) continue;
-    selected.add(skillName);
-    skillLevels.set(skillName, level);
-    row.classList.add('selected');
-    const btns = row.querySelectorAll('.skill-lvl-btn');
-    btns.forEach(b => b.classList.remove('active'));
-    const targetBtn = [...btns].find(b => parseInt(b.dataset.levels, 10) === level);
-    if (targetBtn) targetBtn.classList.add('active');
+  if (!hash || hash.length <= 1) return;
+
+  const params = {};
+  hash.slice(1).split('&').forEach(part => {
+    const eq = part.indexOf('=');
+    if (eq > 0) params[part.slice(0, eq)] = part.slice(eq + 1);
+  });
+
+  if (params.s) {
+    const parts = params.s.split(',');
+    for (const part of parts) {
+      const [idxStr, levelStr] = part.split(':');
+      const idx = parseInt(idxStr, 10);
+      const level = parseInt(levelStr, 10);
+      if (isNaN(idx) || isNaN(level) || idx < 0 || idx >= SKILLS_DATA.length || level < 1 || level > 3) continue;
+      const skillName = SKILLS_DATA[idx].Skill;
+      const row = document.querySelector(`.skill-row[data-skill="${CSS.escape(skillName)}"]`);
+      if (!row) continue;
+      selected.add(skillName);
+      skillLevels.set(skillName, level);
+      row.classList.add('selected');
+      const btns = row.querySelectorAll('.skill-lvl-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      const targetBtn = [...btns].find(b => parseInt(b.dataset.levels, 10) === level);
+      if (targetBtn) targetBtn.classList.add('active');
+    }
   }
-  if (selected.size > 0) { updateCount(); renderTable(); }
+
+  if (params.i) {
+    const iconIds = params.i.split(',');
+    for (const iconId of iconIds) {
+      const iconData = ICONS_DATA.find(ic => ic.id === iconId);
+      if (!iconData || iconData.disabled) continue;
+      const row = document.querySelector(`.icon-row[data-icon-id="${CSS.escape(iconId)}"]`);
+      if (!row) continue;
+      selectedIcons.add(iconId);
+      row.classList.add('selected');
+    }
+  }
+
+  if (selected.size > 0 || selectedIcons.size > 0) {
+    updateCount();
+    renderTable();
+    renderIconsReference();
+  }
 }
 
 // ── Init: fetch skills from JSON, then build UI ───────────────────────────────
@@ -281,7 +418,15 @@ async function init() {
       </div>`;
     return;
   }
+  try {
+    const resp = await fetch('icons.json');
+    if (resp.ok) ICONS_DATA = await resp.json();
+  } catch (err) {
+    console.warn('Could not load icons.json:', err);
+  }
+
   buildSelector();
+  buildIconSelector();
   restoreFromURL();
 }
 
