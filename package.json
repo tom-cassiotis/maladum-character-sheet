@@ -1,0 +1,12 @@
+{
+  "name": "maladum-character-sheet",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test:visual": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.42.0",
+    "serve": "^14.2.0"
+  }
+}
